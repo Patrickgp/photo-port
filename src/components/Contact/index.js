@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { validateEmail } from "../../utils/helpers";
 
 function ContactForm() {
   const [formState, setFormState] = useState({
@@ -7,10 +8,29 @@ function ContactForm() {
     message: "",
   });
 
+  const [errorMessage, setErrorMessage] = useState("");
+
   const { name, email, message } = formState;
 
   function handleChange(e) {
-    setFormState({ ...formState, [e.target.name]: e.target.value });
+    if (e.target.name === "email") {
+      const isValid = validateEmail(e.target.value);
+      console.log(isValid);
+      if (!isValid) {
+        setErrorMessage("Your email is invalid");
+      } else {
+        setErrorMessage("");
+      }
+    } else {
+      if (!e.target.value.length) {
+        setErrorMessage(`${e.target.name} is required.`);
+      } else {
+        setErrorMessage("");
+      }
+    }
+    if (!errorMessage) {
+      setFormState({ ...formState, [e.target.name]: e.target.value });
+    }
   }
 
   function handleSubmit(e) {
@@ -26,7 +46,7 @@ function ContactForm() {
           <label htmlFor="name">Name:</label>
           <input
             type="text"
-            onChange={handleChange}
+            onBlur={handleChange}
             name="name"
             defaultValue={name}
           />
@@ -35,7 +55,7 @@ function ContactForm() {
           <label htmlFor="email">Email Address:</label>
           <input
             type="email"
-            onChange={handleChange}
+            onBlur={handleChange}
             name="email"
             defaultValue={email}
           />
@@ -44,11 +64,16 @@ function ContactForm() {
           <label htmlFor="message">Message:</label>
           <textarea
             name="message"
-            onChange={handleChange}
+            onBlur={handleChange}
             rows="5"
             defaultValue={message}
           />
         </div>
+        {errorMessage && (
+          <div>
+            <p className="error-text">{errorMessage}</p>
+          </div>
+        )}
         <button type="submit">Submit</button>
       </form>
     </section>
